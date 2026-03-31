@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SkyHelper for Educator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: white;
+      text-align: center;
+    }
+
+    header {
+      padding: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      margin: 20px auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(45deg, #22c55e, #4ade80);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .delete {
+      background: red;
+      margin-top: 5px;
+    }
+
+    .box {
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .date {
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>🌐 SkyHelper for Educator</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>📝 Daily Notes</h2>
+    <input type="text" id="searchNote" placeholder="Search Notes..." onkeyup="searchNotes()">
+    <textarea id="noteInput" placeholder="Write notes..."></textarea>
+    <button onclick="saveNote()">Save</button>
+    <div id="notes"></div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Important PYQ</h2>
+    <input type="text" id="searchPYQ" placeholder="Search PYQ..." onkeyup="searchPYQ()">
+    <textarea id="pyqInput" placeholder="Write PYQ..."></textarea>
+    <button onclick="savePYQ()">Save</button>
+    <div id="pyqs"></div>
+  </div>
+
+</div>
+
+<script>
+  function getDate() {
+    return new Date().toLocaleString();
+  }
+
+  function saveNote() {
+    let note = document.getElementById("noteInput").value;
+    if(note==="") return;
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+    notes.push({text: note, date: getDate()});
+    localStorage.setItem("notes", JSON.stringify(notes));
+    displayNotes();
+    document.getElementById("noteInput").value = "";
+  }
+
+  function deleteNote(index) {
+    let notes = JSON.parse(localStorage.getItem("notes"));
+    notes.splice(index,1);
+    localStorage.setItem("notes", JSON.stringify(notes));
+    displayNotes();
+  }
+
+  function displayNotes() {
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+    let output = "";
+    notes.forEach((n,i) => {
+      output += `
+      <div class="box">
+        <div>${n.text}</div>
+        <div class="date">${n.date}</div>
+        <button class="delete" onclick="deleteNote(${i})">Delete</button>
+      </div>`;
+    });
+    document.getElementById("notes").innerHTML = output;
+  }
+
+  function searchNotes() {
+    let input = document.getElementById("searchNote").value.toLowerCase();
+    let boxes = document.querySelectorAll("#notes .box");
+    boxes.forEach(box => {
+      box.style.display = box.innerText.toLowerCase().includes(input) ? "block" : "none";
+    });
+  }
+
+  function savePYQ() {
+    let pyq = document.getElementById("pyqInput").value;
+    if(pyq==="") return;
+    let pyqs = JSON.parse(localStorage.getItem("pyqs")) || [];
+    pyqs.push({text: pyq, date: getDate()});
+    localStorage.setItem("pyqs", JSON.stringify(pyqs));
+    displayPYQ();
+    document.getElementById("pyqInput").value = "";
+  }
+
+  function deletePYQ(index) {
+    let pyqs = JSON.parse(localStorage.getItem("pyqs"));
+    pyqs.splice(index,1);
+    localStorage.setItem("pyqs", JSON.stringify(pyqs));
+    displayPYQ();
+  }
+
+  function displayPYQ() {
+    let pyqs = JSON.parse(localStorage.getItem("pyqs")) || [];
+    let output = "";
+    pyqs.forEach((p,i) => {
+      output += `
+      <div class="box">
+        <div>${p.text}</div>
+        <div class="date">${p.date}</div>
+        <button class="delete" onclick="deletePYQ(${i})">Delete</button>
+      </div>`;
+    });
+    document.getElementById("pyqs").innerHTML = output;
+  }
+
+  function searchPYQ() {
+    let input = document.getElementById("searchPYQ").value.toLowerCase();
+    let boxes = document.querySelectorAll("#pyqs .box");
+    boxes.forEach(box => {
+      box.style.display = box.innerText.toLowerCase().includes(input) ? "block" : "none";
+    });
+  }
+
+  displayNotes();
+  displayPYQ();
+</script>
+
+</body>
+</html>
